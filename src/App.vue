@@ -7,14 +7,17 @@
  * @LastEditTime: 2023-01-09 23:10:47
 -->
 <script setup>
+import { pageList } from "./setting";
 import HelloWorld from "./components/HelloWorld.vue";
 // import tTreeSelect from "packages/treeSelect/src/index.vue";
 import wowTable from "packages/table/src/index.vue";
 // import tTreeSelect from "../dist/tTreeSelect.es.js";
 import { useTable } from "wow-cis-js";
+import { useWowForm } from "./libs/useWowForm";
 import wowDesign from "../dist/wowDesign.es.js";
-const { wowButton, tTreeSelect } = wowDesign;
-// import "../dist/style.css";
+import "../dist/style.css";
+const { wowButton, tTreeSelect, wowForm } = wowDesign;
+
 const fieldNames = {
   children: "children",
   label: "name",
@@ -205,10 +208,72 @@ const options = reactive({
   dataSource,
 });
 
-window.onresize = () => {
-  const fullHeight = window.innerHeight;
-  tableHeight.value = fullHeight - table.value.offsetTop - 60;
-  console.log("aa", tableHeight.value);
+// form
+
+const { formComponents, formSearchComponents, formTableComponents } =
+  pageList();
+// 搜索类型表格
+const {
+  customFormProps: searchFormProps,
+  searchForm,
+  modelRef,
+} = useWowForm({
+  formComponents: formSearchComponents,
+  type: "search",
+  formProps: {
+    layout: "inline",
+  },
+});
+const search = () => {
+  searchForm
+    .validate()
+    .then(() => {
+      console.log(toRaw(modelRef));
+      searchFormProps.key = Math.random();
+    })
+    .catch((err) => {
+      console.log("error", err);
+    });
+};
+// 监听表单值改变
+watchEffect((onInvalidate) => {
+  const { taskInfo, num, type, dateRange } = modelRef;
+  console.log(`${modelRef} 的值变化了！`, modelRef);
+  onInvalidate(() => {
+    console.log("清除副作用函数执行了！");
+  });
+});
+// 栅格形式表格
+const { customFormProps: rowFormProps } = useWowForm({
+  formComponents: formComponents,
+  type: "row",
+  formProps: {
+    // class: 'formTableStyle',
+    // layout: 'inline',
+    labelCol: { span: 4 },
+    wrapperCol: { span: 14 },
+  },
+});
+
+// 表格形式表单
+const {
+  customFormProps: tableFormProps,
+  searchForm: tableForm,
+  resetFields: tableFormResetFields,
+  submitFields: tableFormSubmitFields,
+} = useWowForm({
+  formComponents: formTableComponents,
+  type: "table",
+  formProps: {
+    class: "formTableStyle",
+    // layout: 'inline',
+    // labelCol: { span: 4 },
+    // wrapperCol: { span: 14 }
+    // customLabelWidth: '150px'
+  },
+});
+const submitForm = (fields) => {
+  console.log(fields);
 };
 </script>
 
@@ -278,6 +343,32 @@ window.onresize = () => {
       v-model:value="departId"
       :fieldNames="fieldNames"
     /> -->
+    <h1 style="margin: 50px">搜索模式</h1>
+    <wowForm v-bind="searchFormProps">
+      <template v-slot:buttonSlot>
+        <a-button @click="searchForm.resetFields">重置</a-button>
+        <a-button @click="search">查询</a-button>
+      </template>
+    </wowForm>
+    <h1>栅格模式</h1>
+    <wowForm v-bind="rowFormProps" />
+    <h1>表格模式</h1>
+    <div>
+      <a-button @click="tableFormResetFields">重置</a-button>
+      <a-button @click="tableFormSubmitFields(submitForm)">查询</a-button>
+    </div>
+    <wowForm v-bind="tableFormProps">
+      <!-- <template v-slot:a>
+				<a-form-item label="额外1" :name="a">
+					<a-input allowClear bordered v-model:value="tableFormProps.formData.a"
+				/></a-form-item>
+			</template>
+			<template v-slot:b>
+				<a-form-item label="额外2" :name="b"
+					><a-input allowClear bordered v-model:value="tableFormProps.formData.b"
+				/></a-form-item>
+			</template> -->
+    </wowForm>
   </div>
   <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>

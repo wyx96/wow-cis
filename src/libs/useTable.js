@@ -12047,7 +12047,6 @@ export const useTable = (api, isPageable = true, fun = false) => {
           },
         ],
       };
-      debugger;
       state.dataSource = results.inpatients;
       // 是否需要前端处理数据
       state.dataSource = fun ? fun(state.dataSource) : state.dataSource;

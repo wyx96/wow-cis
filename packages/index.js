@@ -8,6 +8,7 @@
  */
 import wowButton from "./button";
 import tTreeSelect from "./treeSelect";
+import wowForm from "./form";
 
 const components = [wowButton, tTreeSelect];
 const install = function (Vue) {
@@ -24,4 +25,5 @@ export default {
   install,
   wowButton,
   tTreeSelect,
+  wowForm
 };
