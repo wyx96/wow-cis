@@ -11,7 +11,7 @@ import HelloWorld from "./components/HelloWorld.vue";
 // import tTreeSelect from "packages/treeSelect/src/index.vue";
 import wowTable from "packages/table/src/index.vue";
 // import tTreeSelect from "../dist/tTreeSelect.es.js";
-import { useTable } from "./libs/useTable";
+import { useTable } from "wow-cis-js";
 import wowDesign from "../dist/wowDesign.es.js";
 const { wowButton, tTreeSelect } = wowDesign;
 // import "../dist/style.css";
@@ -21,6 +21,23 @@ const fieldNames = {
   key: "id",
   value: "id",
 };
+const table = ref(null);
+const tableHeight = ref(0);
+// const tableHeight = computed(() => {
+//   const fullHeight = window.innerHeight;
+//   return fullHeight - table.value.offsetTop - 60;
+// });
+const init = () => {
+  const fullHeight = window.innerHeight;
+  tableHeight.value = fullHeight - table.value.offsetTop - 60;
+};
+onMounted(() => {
+  init();
+  window.onresize = () => {
+    const fullHeight = window.innerHeight;
+    tableHeight.value = fullHeight - table.value.offsetTop - 60;
+  };
+});
 
 // 测试数据
 const departTree = [
@@ -68,11 +85,8 @@ const transformAssistance = (data) => {
     return newData;
   }
 };
-const { dataSource, sortCallback, getTableList, selectCallback } = useTable(
-  "123",
-  false,
-  transformAssistance
-);
+const { dataSource, pageInfo, sortCallback, getTableList, selectCallback } =
+  useTable("123", false, transformAssistance);
 const columns = reactive([
   {
     title: "序号",
@@ -87,13 +101,13 @@ const columns = reactive([
     key: "bedNum",
     dataIndex: "bedNum",
     align: "center",
-    // width: '12%'
+    width: "10%",
   },
   {
     title: "姓名",
     key: "inpatientName",
     dataIndex: "inpatientName",
-    // width: '12%'
+    width: "10%",
   },
   {
     title: "医疗救助",
@@ -121,7 +135,7 @@ const columns = reactive([
     key: "patientNum",
     align: "center",
     dataIndex: "patientNum",
-    // width: '12%'
+    width: "100px",
   },
   {
     title: "入院时间",
@@ -190,6 +204,12 @@ const options = reactive({
   columns,
   dataSource,
 });
+
+window.onresize = () => {
+  const fullHeight = window.innerHeight;
+  tableHeight.value = fullHeight - table.value.offsetTop - 60;
+  console.log("aa", tableHeight.value);
+};
 </script>
 
 <template>
@@ -200,8 +220,11 @@ const options = reactive({
     <a href="https://vuejs.org/" target="_blank">
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a> -->
-    <div style="height: 80vh">
+    <div style="height: 100px"></div>
+    <wowButton :bName="buttonName" />
+    <div class="tableH" ref="table">
       <wow-table
+        :pageInfo="pageInfo"
         :options="options"
         @select="selectCallback"
         @sort="sortCallback"
@@ -250,12 +273,11 @@ const options = reactive({
       </wow-table>
     </div>
 
-    <t-tree-select
+    <!-- <t-tree-select
       :depart-source="departTree"
       v-model:value="departId"
       :fieldNames="fieldNames"
-    />
-    <wowButton :bName="buttonName" />
+    /> -->
   </div>
   <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>
@@ -271,5 +293,8 @@ const options = reactive({
 }
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
+}
+.tableH {
+  height: v-bind(tableHeight + "px");
 }
 </style>

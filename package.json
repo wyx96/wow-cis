@@ -22,14 +22,15 @@
     }
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "ant-design-vue": "^3.2.15",
     "lodash-es": "^4.17.21",
-    "vue": "^3.2.45"
+    "vue": "^3.2.45",
+    "wow-cis-js": "^1.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
